@@ -1,3 +1,6 @@
+import { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
   ShoppingBagIcon,
   CubeIcon,
@@ -11,10 +14,80 @@ import {
   PlusIcon,
 } from "@heroicons/react/24/outline";
 
-const Dashboard = () => {
-  return (
-     <div className="min-h-screen bg-[#f8fafc]">
+import { getAllOrders } from "../store/orderSlice";
 
+const Dashboard = () => {
+  const dispatch = useDispatch();
+
+  const { orders = [], status } = useSelector(
+    (state) => state.order
+  );
+
+  // =========================================
+  // FETCH ORDERS
+  // =========================================
+
+  useEffect(() => {
+    dispatch(getAllOrders());
+  }, [dispatch]);
+
+  // =========================================
+  // TOTAL REVENUE
+  // =========================================
+
+  const totalRevenue = useMemo(() => {
+    return orders.reduce(
+      (total, order) =>
+        total + (Number(order.Total_Amount) || 0),
+      0
+    );
+  }, [orders]);
+
+  // =========================================
+  // ORDER STATISTICS
+  // =========================================
+
+  const orderStats = useMemo(() => {
+    return {
+      pending: orders.filter(
+        (order) => order.Order_Status === "Pending"
+      ).length,
+
+      preparing: orders.filter(
+        (order) => order.Order_Status === "Preparing"
+      ).length,
+
+      onTheWay: orders.filter(
+        (order) => order.Order_Status === "On the Way"
+      ).length,
+
+      delivered: orders.filter(
+        (order) => order.Order_Status === "Delivered"
+      ).length,
+
+      cancelled: orders.filter(
+        (order) => order.Order_Status === "Cancelled"
+      ).length,
+    };
+  }, [orders]);
+
+  // =========================================
+  // RECENT ORDERS
+  // =========================================
+
+  const recentOrders = useMemo(() => {
+    return [...orders]
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt) - new Date(a.createdAt)
+      )
+      .slice(0, 5);
+  }, [orders]);
+
+  return (
+    <div className="min-h-screen bg-[#f8fafc]">
+
+      {/* ================= HEADER ================= */}
 
       <header className="bg-white border-b border-slate-200">
         <div className="px-6 md:px-8 py-5 flex items-center justify-between">
@@ -50,11 +123,12 @@ const Dashboard = () => {
         </div>
       </header>
 
-
       {/* ================= MAIN ================= */}
+
       <main className="px-6 md:px-8 py-8 max-w-7xl mx-auto">
 
-        {/* Welcome */}
+        {/* ================= WELCOME ================= */}
+
         <div className="mb-8">
 
           <h2 className="text-xl font-semibold text-slate-900">
@@ -67,42 +141,42 @@ const Dashboard = () => {
 
         </div>
 
-
         {/* ================= STATS ================= */}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
 
           <StatCard
             title="Total Revenue"
-            value="Rs. 245,000"
+            value={`Rs. ${totalRevenue.toLocaleString()}`}
             icon={BanknotesIcon}
-            description="+12% from last month"
+            description="From all orders"
           />
 
           <StatCard
             title="Total Orders"
-            value="128"
+            value={orders.length}
             icon={ShoppingBagIcon}
-            description="+8% from last month"
+            description="All orders"
           />
 
           <StatCard
-            title="Customers"
-            value="86"
-            icon={UsersIcon}
-            description="+5 new this week"
+            title="Delivered Orders"
+            value={orderStats.delivered}
+            icon={CheckCircleIcon}
+            description="Successfully delivered"
           />
 
           <StatCard
-            title="Products"
-            value="42"
-            icon={CubeIcon}
-            description="6 low in stock"
+            title="Cancelled Orders"
+            value={orderStats.cancelled}
+            icon={XCircleIcon}
+            description="Cancelled orders"
           />
 
         </div>
 
-
         {/* ================= ORDER STATUS ================= */}
+
         <section className="mt-8">
 
           <div className="flex items-center justify-between mb-4">
@@ -127,33 +201,39 @@ const Dashboard = () => {
 
           </div>
 
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
 
             <OrderStatus
               title="Pending"
-              value="24"
+              value={orderStats.pending}
               icon={ClockIcon}
               iconClass="text-amber-600 bg-amber-100"
             />
 
             <OrderStatus
+              title="Preparing"
+              value={orderStats.preparing}
+              icon={CubeIcon}
+              iconClass="text-orange-600 bg-orange-100"
+            />
+
+            <OrderStatus
               title="On the Way"
-              value="18"
+              value={orderStats.onTheWay}
               icon={TruckIcon}
               iconClass="text-blue-600 bg-blue-100"
             />
 
             <OrderStatus
-              title="Completed"
-              value="79"
+              title="Delivered"
+              value={orderStats.delivered}
               icon={CheckCircleIcon}
               iconClass="text-green-600 bg-green-100"
             />
 
             <OrderStatus
               title="Cancelled"
-              value="7"
+              value={orderStats.cancelled}
               icon={XCircleIcon}
               iconClass="text-red-600 bg-red-100"
             />
@@ -162,12 +242,12 @@ const Dashboard = () => {
 
         </section>
 
-
         {/* ================= CONTENT GRID ================= */}
+
         <div className="mt-8 grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-
           {/* ================= RECENT ORDERS ================= */}
+
           <section className="xl:col-span-2 bg-white border border-slate-200 rounded-xl">
 
             <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
@@ -190,7 +270,6 @@ const Dashboard = () => {
               </a>
 
             </div>
-
 
             <div className="overflow-x-auto">
 
@@ -218,36 +297,41 @@ const Dashboard = () => {
                   </tr>
                 </thead>
 
-
                 <tbody className="divide-y divide-slate-100">
 
-                  <OrderRow
-                    id="#6a7de60"
-                    customer="Ishan Ojha"
-                    amount="Rs. 80,000"
-                    status="Pending"
-                  />
+                  {recentOrders.length > 0 ? (
 
-                  <OrderRow
-                    id="#8bc92a1"
-                    customer="Rahul Sharma"
-                    amount="Rs. 12,500"
-                    status="Completed"
-                  />
+                    recentOrders.map((order) => (
 
-                  <OrderRow
-                    id="#4df72c9"
-                    customer="Aayush Thapa"
-                    amount="Rs. 35,000"
-                    status="On the Way"
-                  />
+                      <OrderRow
+                        key={order._id}
+                        id={`#${order._id.slice(-7)}`}
+                        customer={
+                          order.user?.user_Name ||
+                          "Unknown User"
+                        }
+                        amount={`Rs. ${(
+                          Number(order.Total_Amount) || 0
+                        ).toLocaleString()}`}
+                        status={
+                          order.Order_Status || "Pending"
+                        }
+                      />
 
-                  <OrderRow
-                    id="#91ac82e"
-                    customer="Sujan Karki"
-                    amount="Rs. 8,500"
-                    status="Cancelled"
-                  />
+                    ))
+
+                  ) : (
+
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="px-6 py-10 text-center text-sm text-slate-500"
+                      >
+                        No orders found.
+                      </td>
+                    </tr>
+
+                  )}
 
                 </tbody>
 
@@ -257,8 +341,8 @@ const Dashboard = () => {
 
           </section>
 
-
           {/* ================= QUICK ACTIONS ================= */}
+
           <section className="bg-white border border-slate-200 rounded-xl">
 
             <div className="px-6 py-5 border-b border-slate-200">
@@ -272,7 +356,6 @@ const Dashboard = () => {
               </p>
 
             </div>
-
 
             <div className="p-6 space-y-3">
 
@@ -310,12 +393,12 @@ const Dashboard = () => {
 
         </div>
 
-
         {/* ================= BOTTOM GRID ================= */}
+
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
+          {/* ================= PAYMENT OVERVIEW ================= */}
 
-          {/* Payment Overview */}
           <section className="bg-white border border-slate-200 rounded-xl p-6">
 
             <div className="flex items-center gap-3">
@@ -330,54 +413,30 @@ const Dashboard = () => {
                 </h2>
 
                 <p className="text-sm text-slate-500">
-                  Payments received this month
+                  Payments received from orders
                 </p>
               </div>
 
             </div>
 
-
             <div className="mt-6 grid grid-cols-2 gap-4">
 
-              <div className="bg-slate-50 rounded-lg p-4">
+              <PaymentOverview
+                orders={orders}
+                method="Khalti"
+              />
 
-                <p className="text-sm text-slate-500">
-                  Khalti
-                </p>
-
-                <p className="mt-1 text-xl font-bold text-slate-900">
-                  Rs. 145,000
-                </p>
-
-                <p className="mt-1 text-xs text-green-600 font-medium">
-                  32 payments
-                </p>
-
-              </div>
-
-
-              <div className="bg-slate-50 rounded-lg p-4">
-
-                <p className="text-sm text-slate-500">
-                  Cash on Delivery
-                </p>
-
-                <p className="mt-1 text-xl font-bold text-slate-900">
-                  Rs. 100,000
-                </p>
-
-                <p className="mt-1 text-xs text-blue-600 font-medium">
-                  45 orders
-                </p>
-
-              </div>
+              <PaymentOverview
+                orders={orders}
+                method="COD"
+              />
 
             </div>
 
           </section>
 
+          {/* ================= INVENTORY ================= */}
 
-          {/* Inventory */}
           <section className="bg-white border border-slate-200 rounded-xl p-6">
 
             <div className="flex items-center gap-3">
@@ -398,26 +457,19 @@ const Dashboard = () => {
 
             </div>
 
+            <div className="mt-6">
 
-            <div className="mt-6 space-y-4">
+              <p className="text-sm text-slate-500">
+                Inventory data is not connected yet.
+              </p>
 
-              <InventoryItem
-                name="Laptop"
-                stock="3 left"
-                status="Low Stock"
-              />
-
-              <InventoryItem
-                name="Phone"
-                stock="0 left"
-                status="Out of Stock"
-              />
-
-              <InventoryItem
-                name="Keyboard"
-                stock="5 left"
-                status="Low Stock"
-              />
+              <a
+                href="/admin/products"
+                className="inline-flex items-center gap-1 mt-3 text-sm font-semibold text-blue-600 hover:text-blue-700"
+              >
+                Manage Products
+                <ArrowRightIcon className="w-4 h-4" />
+              </a>
 
             </div>
 
@@ -459,15 +511,13 @@ function StatCard({
 
         </div>
 
-
         <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
           <Icon className="w-5 h-5 text-blue-600" />
         </div>
 
       </div>
 
-
-      <p className="mt-4 text-xs font-medium text-green-600">
+      <p className="mt-4 text-xs font-medium text-slate-500">
         {description}
       </p>
 
@@ -528,45 +578,50 @@ function OrderRow({
 }) {
   const statusStyles = {
     Pending: "bg-amber-100 text-amber-700",
-    "On the Way": "bg-blue-100 text-blue-700",
-    Completed: "bg-green-100 text-green-700",
-    Cancelled: "bg-red-100 text-red-700",
+
+    Preparing:
+      "bg-orange-100 text-orange-700",
+
+    "On the Way":
+      "bg-blue-100 text-blue-700",
+
+    Delivered:
+      "bg-green-100 text-green-700",
+
+    Cancelled:
+      "bg-red-100 text-red-700",
   };
 
   return (
     <tr className="hover:bg-slate-50 transition">
 
       <td className="px-6 py-4">
-
         <p className="text-sm font-semibold text-slate-900">
           {id}
         </p>
 
       </td>
 
-
       <td className="px-6 py-4">
-
         <p className="text-sm text-slate-700">
           {customer}
         </p>
-
       </td>
 
-
       <td className="px-6 py-4">
-
         <p className="text-sm font-semibold text-slate-900">
           {amount}
         </p>
 
       </td>
 
-
       <td className="px-6 py-4">
 
         <span
-          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${statusStyles[status]}`}
+          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
+            statusStyles[status] ||
+            "bg-slate-100 text-slate-700"
+          }`}
         >
           {status}
         </span>
@@ -600,7 +655,6 @@ function QuickAction({
 
       </div>
 
-
       <div className="flex-1">
 
         <p className="text-sm font-semibold text-slate-900">
@@ -613,7 +667,6 @@ function QuickAction({
 
       </div>
 
-
       <ArrowRightIcon className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
 
     </a>
@@ -622,41 +675,34 @@ function QuickAction({
 
 
 /* ========================================================= */
-/* INVENTORY ITEM */
+/* PAYMENT OVERVIEW */
 /* ========================================================= */
 
-function InventoryItem({
-  name,
-  stock,
-  status,
-}) {
-  const isOutOfStock = status === "Out of Stock";
+function PaymentOverview({ orders, method }) {
+  const paymentOrders = orders.filter(
+    (order) => order.Payment_Details?.method === method
+  );
+
+  const amount = paymentOrders.reduce(
+    (total, order) =>
+      total + (Number(order.Total_Amount) || 0),
+    0
+  );
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="bg-slate-50 rounded-lg p-4">
 
-      <div>
+      <p className="text-sm text-slate-500">
+        {method === "COD" ? "Cash on Delivery" : method}
+      </p>
 
-        <p className="text-sm font-semibold text-slate-900">
-          {name}
-        </p>
+      <p className="mt-1 text-xl font-bold text-slate-900">
+        Rs. {amount.toLocaleString()}
+      </p>
 
-        <p className="text-xs text-slate-500 mt-1">
-          {stock}
-        </p>
-
-      </div>
-
-
-      <span
-        className={`text-xs font-semibold px-3 py-1 rounded-full ${
-          isOutOfStock
-            ? "bg-red-100 text-red-700"
-            : "bg-amber-100 text-amber-700"
-        }`}
-      >
-        {status}
-      </span>
+      <p className="mt-1 text-xs text-slate-500 font-medium">
+        {paymentOrders.length} orders
+      </p>
 
     </div>
   );
