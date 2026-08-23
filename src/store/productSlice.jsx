@@ -58,10 +58,8 @@ export const {
 } = productSlice.actions;
 
 
-// =========================================
-// GET ALL PRODUCTS
-// =========================================
 
+// GET ALL PRODUCTS
 export function getAllProducts() {
   return async function getAllProductsThunk(dispatch) {
     dispatch(setStatus(STATUSES.LOADING));
@@ -84,10 +82,7 @@ export function getAllProducts() {
 }
 
 
-// =========================================
 // GET SINGLE PRODUCT
-// =========================================
-
 export function getProductById(id) {
   return async function getProductByIdThunk(dispatch) {
     dispatch(setStatus(STATUSES.LOADING));
@@ -115,11 +110,7 @@ export function getProductById(id) {
   };
 }
 
-
-// =========================================
 // DELETE PRODUCT
-// =========================================
-
 export function deleteProduct(id) {
   return async function deleteProductThunk(dispatch) {
     try {

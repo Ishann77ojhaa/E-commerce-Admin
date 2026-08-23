@@ -6,6 +6,8 @@ import AdminLogin from "../views/login/Login";
 import MyOrders from "./adminWorks/MyOrders";
 import ManageUsers from "./adminWorks/ManageUsers"
 import ManageProducts from "./adminWorks/ManageProducts";
+import AddProduct from "./adminWorks/AddProduct";
+import SingleOrder from "./adminWorks/SingleOrder";
 
 
 const router = createBrowserRouter([
@@ -21,15 +23,22 @@ const router = createBrowserRouter([
         element: <ProtectedRoute> <Dashboard/> </ProtectedRoute>
       },{
         path : "/admin/orders",
-        element: <MyOrders/>
+        element: <ProtectedRoute> <MyOrders/>  </ProtectedRoute>
+        },                    
+      {
+        path : "/admin/orders/:id",
+        element: <ProtectedRoute> <SingleOrder/> </ProtectedRoute>
       },{
         path : "/admin/users",
-        element: <ManageUsers/>
+        element: <ProtectedRoute> <ManageUsers/> </ProtectedRoute>
       },
       {
         path : "/admin/products",
-        element : <ManageProducts/>
-      },
+        element : <ProtectedRoute> <ManageProducts/> </ProtectedRoute>
+      },{
+        path : "/admin/products/new",
+        element : <ProtectedRoute> <AddProduct/> </ProtectedRoute>
+      }
     ],
   },
 ]);

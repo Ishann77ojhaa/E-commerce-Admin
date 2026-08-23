@@ -7,7 +7,8 @@ import {
   CalendarDaysIcon,
   ChevronDownIcon,
   ShoppingBagIcon,
-  EyeIcon
+  EyeIcon,
+  ArrowLeftIcon 
 } from "@heroicons/react/24/outline";
 
 import { STATUSES } from "../globals/misc/statuses";
@@ -17,6 +18,7 @@ import { getAllOrders } from "../store/orderSlice";
 
 
 export default function MyOrders() {
+
   const dispatch = useDispatch();
 
   const { orders, status } = useSelector((state) => state.order);
@@ -30,9 +32,14 @@ export default function MyOrders() {
     dispatch(getAllOrders());
   }, [dispatch]);
 
-  // --------------------------------------------------
-  // Statuses actually used by your backend
-  // --------------------------------------------------
+          <Link
+          to="/admin/orders"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600"
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          Back to Orders
+        </Link>
+
 
   const statuses = useMemo(() => {
     const uniqueStatuses = [
@@ -46,9 +53,7 @@ export default function MyOrders() {
     return uniqueStatuses;
   }, [orders]);
 
-  // --------------------------------------------------
-  // Date helper
-  // --------------------------------------------------
+ 
 
   const isDateInRange = (date, filter) => {
     if (filter === "All") return true;
@@ -190,22 +195,25 @@ export default function MyOrders() {
     <main className="bg-slate-50 min-h-screen px-4 md:px-8 py-10">
       <div className="max-w-7xl mx-auto">
 
-        {/* =========================================
-            HEADER
-        ========================================= */}
+    <Link
+          to="/admin/dashboard"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600"
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          Back to Dashboard
+        </Link>
+
+  
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
           <div>
-            <p className="text-sm font-semibold text-blue-600">
-              Your purchases
-            </p>
 
             <h1 className="mt-1 text-3xl md:text-4xl font-bold text-slate-900">
-              My Orders
+            Order's
             </h1>
 
             <p className="mt-2 text-sm text-slate-500">
-              View and track everything you've ordered from IshShop.
+              View and track everything people ordered from IshShop.
             </p>
           </div>
 
@@ -542,7 +550,7 @@ export default function MyOrders() {
 
       {/* View Order */}
       <Link
-        to={`/orders/${order._id}`}
+        to={`/admin/orders/${order._id}`}
         className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
       >
         <EyeIcon className="w-4 h-4" />

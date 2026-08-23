@@ -15,6 +15,8 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { getAllOrders } from "../store/orderSlice";
+import { STATUSES } from "../globals/misc/statuses";
+import Loader from "../globals/loader/loader";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -83,6 +85,17 @@ const Dashboard = () => {
       )
       .slice(0, 5);
   }, [orders]);
+
+  // Loading
+  if (status === STATUSES.LOADING) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader message="Loading Your Dashboard..."/>
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
