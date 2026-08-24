@@ -9,6 +9,7 @@ import {
   PhoneIcon,
   TrashIcon,
   EyeIcon,
+  ArrowLeftIcon
 } from "@heroicons/react/24/outline";
 
 import { STATUSES } from "../globals/misc/statuses";
@@ -18,6 +19,7 @@ import {
   getAllUsers,
   deleteUser,
 } from "../store/userSlice";
+import { Link } from "react-router-dom";
 
 
 export default function ManageUsers() {
@@ -90,9 +92,7 @@ export default function ManageUsers() {
   };
 
 
-  // =========================================
   // LOADING
-  // =========================================
 
   if (status === STATUSES.LOADING && users.length === 0) {
 
@@ -110,18 +110,19 @@ export default function ManageUsers() {
 
       <div className="max-w-7xl mx-auto">
 
+        <Link
+          to="/admin/dashboard"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600"
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          Back to Dashboard
+        </Link>
 
-        {/* =====================================
-            HEADER
-        ===================================== */}
 
+{/* //HEADER */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
 
           <div>
-
-            <p className="text-sm font-semibold text-blue-600">
-              Administration
-            </p>
 
             <h1 className="mt-1 text-3xl md:text-4xl font-bold text-slate-900">
               Users

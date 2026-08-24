@@ -9,6 +9,7 @@ import {
   TrashIcon,
   EyeIcon,
   ExclamationTriangleIcon,
+  ArrowLeftIcon
 } from "@heroicons/react/24/outline";
 
 import { STATUSES } from "../globals/misc/statuses";
@@ -18,6 +19,7 @@ import {
   getAllProducts,
   deleteProduct,
 } from "../store/productSlice";
+import { Link } from "react-router-dom";
 
 
 export default function ManageProducts() {
@@ -143,10 +145,7 @@ export default function ManageProducts() {
   }, [products, search, stockFilter]);
 
 
-  // =========================================
-  // DELETE
-  // =========================================
-
+// DELETE
   const handleDelete = async (product) => {
 
     const confirmed = window.confirm(
@@ -171,11 +170,12 @@ export default function ManageProducts() {
 
   };
 
+//Edit 
+const handleEdit = async(product) =>{
+  console.log(product)
+}
 
-  // =========================================
-  // LOADING
-  // =========================================
-
+// LOADING
   if (
     status === STATUSES.LOADING &&
     products.length === 0
@@ -192,8 +192,15 @@ export default function ManageProducts() {
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 md:px-8 py-10">
-
       <div className="max-w-7xl mx-auto">
+
+        <Link
+          to="/admin/dashboard"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600"
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          Back to Dashboard
+        </Link>
 
 
         {/* =====================================
@@ -204,9 +211,6 @@ export default function ManageProducts() {
 
           <div>
 
-            <p className="text-sm font-semibold text-blue-600">
-              Administration
-            </p>
 
             <h1 className="mt-1 text-3xl md:text-4xl font-bold text-slate-900">
               Products
@@ -590,7 +594,8 @@ export default function ManageProducts() {
 
                           <div className="flex items-center justify-end gap-2">
 
-                            <button
+                            <Link
+                            to={`/admin/products/${product._id}`}
                               title="View Product"
                               className="
                                 p-2 rounded-lg
@@ -601,10 +606,11 @@ export default function ManageProducts() {
                               "
                             >
                               <EyeIcon className="w-5 h-5" />
-                            </button>
+                            </Link>
 
 
                             <button
+                            onClick={()=>handleEdit(product)}
                               title="Edit Product"
                               className="
                                 p-2 rounded-lg

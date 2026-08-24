@@ -2,8 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { STATUSES } from "../globals/misc/statuses";
 import { APIAuthenticated } from "../globals/http";
 
-
- export const  orderSlice = createSlice({
+export const orderSlice = createSlice({
   name: "order",
 
   initialState: {
@@ -12,27 +11,38 @@ import { APIAuthenticated } from "../globals/http";
     status: STATUSES.IDLE,
   },
 
-  reducers: {
-    setOrders(state, action) {
-      state.orders = action.payload;
-    },
-
-    setStatus(state, action) {
-      state.status = action.payload;
-    },
-
-    clearOrders(state) {
-      state.orders = [];
-    },
-
-    setSelectedOrder(state, action) {
-  state.selectedOrder = action.payload;
-},
-clearSelectedOrder(state) {
-      state.selectedOrder = null;
-    },
+reducers: {
+  setOrders(state, action) {
+    state.orders = action.payload;
   },
-});
+
+  setStatus(state, action) {
+    state.status = action.payload;
+  },
+
+  clearOrders(state) {
+    state.orders = [];
+  },
+
+  setSelectedOrder(state, action) {
+    state.selectedOrder = action.payload;
+  },
+
+  clearSelectedOrder(state) {
+    state.selectedOrder = null;
+  },
+
+  deleteOrderFromState(state, action) {
+    const index = state.orders.findIndex(
+      order => order._id === action.payload.orderId
+    );
+    if (index !== -1) {
+    state.orders.splice(index, 1);
+  }
+  },
+},
+
+})
 
 export const {
   setOrders,
@@ -40,10 +50,10 @@ export const {
   clearOrders,
   clearSelectedOrder,
   setSelectedOrder,
+  deleteOrderFromState,
 } = orderSlice.actions;
 
 export default orderSlice.reducer;
-
 
 // Get my orders
 export function getAllOrders() {
@@ -55,7 +65,6 @@ export function getAllOrders() {
 
       dispatch(setOrders(response.data.data));
       dispatch(setStatus(STATUSES.SUCCESS));
-
     } catch (error) {
       console.log(error.response?.data);
       dispatch(setStatus(STATUSES.ERROR));
@@ -89,12 +98,9 @@ export function getOrderById(id) {
 export function updateOrder(orderId, orderstatus) {
   return async function updateOrderThunk(dispatch) {
     try {
-      const response = await APIAuthenticated.patch(
-        `/admin/${orderId}`,
-        {
-          orderstatus: orderstatus,
-        }
-      );
+      const response = await APIAuthenticated.patch(`/admin/${orderId}`, {
+        orderstatus: orderstatus,
+      });
 
       dispatch(setSelectedOrder(response.data.data));
 
@@ -103,10 +109,7 @@ export function updateOrder(orderId, orderstatus) {
 
       return response.data;
     } catch (error) {
-      console.log(
-        "UPDATE ORDER ERROR:",
-        error.response?.data || error.message
-      );
+      console.log("UPDATE ORDER ERROR:", error.response?.data || error.message);
 
       throw error;
     }
@@ -119,12 +122,9 @@ export function cancelOrder(orderId) {
     dispatch(setStatus(STATUSES.LOADING));
 
     try {
-      const response = await APIAuthenticated.patch(
-        `/admin/${orderId}`,
-        {
-          orderstatus: "Cancelled",
-        }
-      );
+      const response = await APIAuthenticated.patch(`/admin/${orderId}`, {
+        orderstatus: "Cancelled",
+      });
 
       dispatch(setSelectedOrder(response.data.data));
       dispatch(getAllOrders());
@@ -133,6 +133,28 @@ export function cancelOrder(orderId) {
       return true;
     } catch (error) {
       console.log(error.response?.data || error);
+
+      dispatch(setStatus(STATUSES.ERROR));
+
+      return false;
+    }
+  };
+}
+
+//Delete Order
+export function deleteOrder(orderId) {
+  return async function deleteOrderThunk(dispatch) {
+    dispatch(setStatus(STATUSES.LOADING));
+
+    try {
+      const response = await APIAuthenticated.delete(`/admin/${orderId}`);
+
+      dispatch(deleteOrderFromState({orderId}));
+      dispatch(setStatus(STATUSES.SUCCESS));
+
+      return response.data;
+    } catch (error) {
+      console.log("DELETE ORDER ERROR:", error.response?.data || error.message);
 
       dispatch(setStatus(STATUSES.ERROR));
 

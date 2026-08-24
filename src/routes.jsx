@@ -8,6 +8,7 @@ import ManageUsers from "./adminWorks/ManageUsers"
 import ManageProducts from "./adminWorks/ManageProducts";
 import AddProduct from "./adminWorks/AddProduct";
 import SingleOrder from "./adminWorks/SingleOrder";
+import SingleProduct from "./adminWorks/SingleProduct";
 
 
 const router = createBrowserRouter([
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path : "/admin/products",
         element : <ProtectedRoute> <ManageProducts/> </ProtectedRoute>
+      },
+      {
+        path : "/admin/products/:id",
+        element : <ProtectedRoute> <SingleProduct/> </ProtectedRoute>
       },{
         path : "/admin/products/new",
         element : <ProtectedRoute> <AddProduct/> </ProtectedRoute>

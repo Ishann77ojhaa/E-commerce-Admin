@@ -267,6 +267,16 @@ export default function SingleOrder() {
                   </p>
                 </div>
 
+                 <div>
+                  <p className="text-xs uppercase tracking-wide text-slate-500">
+                    Customer Name
+                  </p>
+
+                  <p className="mt-2 font-medium text-slate-900">
+                    {order?.user?.user_Name}
+                  </p>
+                </div>
+
               </div>
             </section>
 

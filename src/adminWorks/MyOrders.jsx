@@ -8,12 +8,13 @@ import {
   ChevronDownIcon,
   ShoppingBagIcon,
   EyeIcon,
-  ArrowLeftIcon 
+  ArrowLeftIcon,
+  TrashIcon
 } from "@heroicons/react/24/outline";
 
 import { STATUSES } from "../globals/misc/statuses";
 import Loader from "../globals/loader/loader";
-import { getAllOrders } from "../store/orderSlice";
+import { deleteOrder, getAllOrders } from "../store/orderSlice";
 
 
 
@@ -31,15 +32,6 @@ export default function MyOrders() {
   useEffect(() => {
     dispatch(getAllOrders());
   }, [dispatch]);
-
-          <Link
-          to="/admin/orders"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600"
-        >
-          <ArrowLeftIcon className="w-4 h-4" />
-          Back to Orders
-        </Link>
-
 
   const statuses = useMemo(() => {
     const uniqueStatuses = [
@@ -190,6 +182,20 @@ export default function MyOrders() {
       </main>
     );
   }
+
+
+  const handleDeleteClick = async(id)=>{
+    const confirmed = window.confirm(
+        "Are you sure you want to delete this order?"
+      );
+      if (!confirmed) return;
+      const response = await dispatch(deleteOrder(id))
+      if (response) {
+        alert("Order deleted successfully.");
+      } else {
+        alert("Failed to delete order.");
+      }
+    };
 
   return (
     <main className="bg-slate-50 min-h-screen px-4 md:px-8 py-10">
@@ -556,6 +562,14 @@ export default function MyOrders() {
         <EyeIcon className="w-4 h-4" />
         View Order
       </Link>
+
+      <button
+        onClick={()=>handleDeleteClick(order._id)}
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors shadow-sm"
+      >
+        <TrashIcon className="w-4 h-4" />
+        Delete Order
+      </button>
 
     </div>
 
