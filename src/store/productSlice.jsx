@@ -57,7 +57,7 @@ export const {
   clearProducts,
 } = productSlice.actions;
 
-
+export default productSlice.reducer;
 
 // GET ALL PRODUCTS
 export function getAllProducts() {
@@ -134,4 +134,35 @@ export function deleteProduct(id) {
 }
 
 
-export default productSlice.reducer;
+// CREATE PRODUCT 
+export function createProduct(formData) { 
+  return async function createProductThunk(dispatch) { 
+    dispatch(setStatus(STATUSES.LOADING)); 
+ 
+    try { 
+      const response = await APIAuthenticated.post( 
+        "/product/", 
+        formData, 
+        { 
+          headers: { 
+            "Content-Type": "multipart/form-data", 
+          }, 
+        } 
+      ); 
+ 
+      dispatch(setStatus(STATUSES.SUCCESS)); 
+ 
+      return response.data; 
+ 
+    } catch (error) { 
+      console.log( 
+        "CREATE PRODUCT ERROR:", 
+        error.response?.data || error.message 
+      ); 
+ 
+      dispatch(setStatus(STATUSES.ERROR)); 
+ 
+      throw error; 
+    } 
+  }; 
+}
