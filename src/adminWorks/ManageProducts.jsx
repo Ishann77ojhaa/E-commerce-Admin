@@ -459,7 +459,7 @@ const handleEdit = async(product) =>{
                             ">
 
                               <img
-                                src={product.Product_Image}
+                                src={`http://${product.Product_Image}`}
                                 alt={product.Product_Name}
                                 className="w-full h-full object-contain"
                               />
