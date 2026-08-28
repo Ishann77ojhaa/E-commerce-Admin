@@ -81,7 +81,6 @@ export function getAllProducts() {
   };
 }
 
-
 // GET SINGLE PRODUCT
 export function getProductById(id) {
   return async function getProductByIdThunk(dispatch) {
@@ -133,7 +132,6 @@ export function deleteProduct(id) {
   };
 }
 
-
 // CREATE PRODUCT 
 export function createProduct(formData) { 
   return async function createProductThunk(dispatch) { 
@@ -165,4 +163,126 @@ export function createProduct(formData) {
       throw error; 
     } 
   }; 
+}
+
+// UPDATE PRODUCT
+export function updateProduct({ id, formData }) {
+  return async function updateProductThunk(dispatch) {
+    dispatch(setStatus(STATUSES.LOADING));
+
+    try {
+      const response = await APIAuthenticated.patch(
+        `/product/${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      dispatch(
+        updateProductInState(response.data.data)
+      );
+
+      dispatch(
+        setSelectedProduct(response.data.data)
+      );
+
+      dispatch(setStatus(STATUSES.SUCCESS));
+
+      return response.data;
+
+    } catch (error) {
+      console.log(
+        "UPDATE PRODUCT ERROR:",
+        error.response?.data || error.message
+      );
+
+      dispatch(setStatus(STATUSES.ERROR));
+
+      throw error;
+    }
+  };
+}
+
+// UPDATE PRODUCT STATUS
+export function updateProductStatus({ id, productStatus }) {
+  return async function updateProductStatusThunk(dispatch) {
+    dispatch(setStatus(STATUSES.LOADING));
+
+    try {
+      const response = await APIAuthenticated.patch(
+        `/product/status/${id}`,
+        {
+          productStatus,
+        }
+      );
+
+      dispatch(
+        updateProductInState(response.data.data)
+      );
+
+      dispatch(
+        setSelectedProduct(response.data.data)
+      );
+
+      dispatch(setStatus(STATUSES.SUCCESS));
+
+      return response.data;
+
+    } catch (error) {
+      console.log(
+        "UPDATE PRODUCT STATUS ERROR:",
+        error.response?.data || error.message
+      );
+
+      dispatch(setStatus(STATUSES.ERROR));
+
+      throw error;
+    }
+  };
+}
+
+// UPDATE STOCK AND PRICE
+export function updateStockAndPrice({
+  id,
+  ProductStockQTY,
+  ProductPrice,
+}) {
+  return async function updateStockAndPriceThunk(dispatch) {
+    dispatch(setStatus(STATUSES.LOADING));
+
+    try {
+      const response = await APIAuthenticated.patch(
+        `/product/stockprice/${id}`,
+        {
+          ProductStockQTY,
+          ProductPrice,
+        }
+      );
+
+      dispatch(
+        updateProductInState(response.data.data)
+      );
+
+      dispatch(
+        setSelectedProduct(response.data.data)
+      );
+
+      dispatch(setStatus(STATUSES.SUCCESS));
+
+      return response.data;
+
+    } catch (error) {
+      console.log(
+        "UPDATE STOCK AND PRICE ERROR:",
+        error.response?.data || error.message
+      );
+
+      dispatch(setStatus(STATUSES.ERROR));
+
+      throw error;
+    }
+  };
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -17,6 +17,7 @@ import {
 import { getAllOrders } from "../store/orderSlice";
 import { STATUSES } from "../globals/misc/statuses";
 import Loader from "../globals/loader/loader";
+import api from "../../http/ApiService";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -25,66 +26,34 @@ const Dashboard = () => {
     (state) => state.order
   );
 
-  // =========================================
+    const [stats, setStats] = useState(null);
+
   // FETCH ORDERS
-  // =========================================
-
   useEffect(() => {
-    dispatch(getAllOrders());
-  }, [dispatch]);
+  const fetchStats = async () => {
+    try {
+      const result = await api.getDatas("admin/stats");
 
-  // =========================================
-  // TOTAL REVENUE
-  // =========================================
+      console.log("Dashboard Stats:", result);
 
-  const totalRevenue = useMemo(() => {
-    return orders.reduce(
-      (total, order) =>
-        total + (Number(order.Total_Amount) || 0),
-      0
-    );
-  }, [orders]);
+      setStats(result.data);
+    } catch (error) {
+      console.error("Failed to fetch dashboard stats:", error);
+    }
+  };
 
-  // =========================================
-  // ORDER STATISTICS
-  // =========================================
+  fetchStats();
 
-  const orderStats = useMemo(() => {
-    return {
-      pending: orders.filter(
-        (order) => order.Order_Status === "Pending"
-      ).length,
+  dispatch(getAllOrders());
+}, [dispatch]);
 
-      preparing: orders.filter(
-        (order) => order.Order_Status === "Preparing"
-      ).length,
-
-      onTheWay: orders.filter(
-        (order) => order.Order_Status === "On the Way"
-      ).length,
-
-      delivered: orders.filter(
-        (order) => order.Order_Status === "Delivered"
-      ).length,
-
-      cancelled: orders.filter(
-        (order) => order.Order_Status === "Cancelled"
-      ).length,
-    };
-  }, [orders]);
-
-  // =========================================
-  // RECENT ORDERS
-  // =========================================
-
-  const recentOrders = useMemo(() => {
-    return [...orders]
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt) - new Date(a.createdAt)
-      )
-      .slice(0, 5);
-  }, [orders]);
+// RECENT ORDERS
+const recentOrders = [...orders]
+  .sort(
+    (a, b) =>
+      new Date(b.createdAt) - new Date(a.createdAt)
+  )
+  .slice(0, 5);
 
   // Loading
   if (status === STATUSES.LOADING) {
@@ -160,19 +129,19 @@ const Dashboard = () => {
 
           <StatCard
             title="Total Revenue"
-            value={`Rs. ${totalRevenue.toLocaleString()}`}
+            value={`Rs. ${(stats?.totalRevenue || 0).toLocaleString()}`}
             icon={BanknotesIcon}
-            description="From all orders"
+            description="From delivered orders"
           />
 
           <StatCard
             title="Total Orders"
-            value={orders.length}
+            value={stats?.totalOrders || 0} 
             icon={ShoppingBagIcon}
             description="All orders"
           />
 
-          <StatCard
+          {/* <StatCard
             title="Delivered Orders"
             value={orderStats.delivered}
             icon={CheckCircleIcon}
@@ -184,7 +153,23 @@ const Dashboard = () => {
             value={orderStats.cancelled}
             icon={XCircleIcon}
             description="Cancelled orders"
-          />
+          />*/}
+
+  <StatCard 
+    title="Total Products" 
+    value={stats?.totalProducts || 0} 
+    icon={CubeIcon} 
+    description="Products in store" 
+  />
+
+  <StatCard 
+    title="Total Users" 
+    value={stats?.totalUsers || 0} 
+    icon={UsersIcon} 
+    description="Registered customers" 
+  />
+
+
 
         </div>
 
@@ -216,40 +201,40 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
 
-            <OrderStatus
-              title="Pending"
-              value={orderStats.pending}
-              icon={ClockIcon}
-              iconClass="text-amber-600 bg-amber-100"
-            />
+<OrderStatus 
+  title="Pending" 
+  value={stats?.pendingOrders || 0} 
+  icon={ClockIcon} 
+  iconClass="text-amber-600 bg-amber-100" 
+/>
 
-            <OrderStatus
-              title="Preparing"
-              value={orderStats.preparing}
-              icon={CubeIcon}
-              iconClass="text-orange-600 bg-orange-100"
-            />
+<OrderStatus 
+  title="Preparing" 
+  value={stats?.preparingOrders || 0} 
+  icon={CubeIcon} 
+  iconClass="text-orange-600 bg-orange-100" 
+/>
 
-            <OrderStatus
-              title="On the Way"
-              value={orderStats.onTheWay}
-              icon={TruckIcon}
-              iconClass="text-blue-600 bg-blue-100"
-            />
+<OrderStatus 
+  title="On the Way" 
+  value={stats?.onTheWayOrders || 0} 
+  icon={TruckIcon} 
+  iconClass="text-blue-600 bg-blue-100" 
+/>
 
-            <OrderStatus
-              title="Delivered"
-              value={orderStats.delivered}
-              icon={CheckCircleIcon}
-              iconClass="text-green-600 bg-green-100"
-            />
+<OrderStatus 
+  title="Delivered" 
+  value={stats?.deliveredOrders || 0} 
+  icon={CheckCircleIcon} 
+  iconClass="text-green-600 bg-green-100" 
+/>
 
-            <OrderStatus
-              title="Cancelled"
-              value={orderStats.cancelled}
-              icon={XCircleIcon}
-              iconClass="text-red-600 bg-red-100"
-            />
+<OrderStatus 
+  title="Cancelled" 
+  value={stats?.cancelledOrders || 0} 
+  icon={XCircleIcon} 
+  iconClass="text-red-600 bg-red-100" 
+/>
 
           </div>
 
@@ -435,13 +420,15 @@ const Dashboard = () => {
             <div className="mt-6 grid grid-cols-2 gap-4">
 
               <PaymentOverview
-                orders={orders}
                 method="Khalti"
+                revenue = {stats?.khaltiRevenue}
+                orders={stats?.khaltiOrders}
               />
 
               <PaymentOverview
-                orders={orders}
-                method="COD"
+              method="COD"
+                orders={stats?.codOrders}
+                revenue = {stats?.codRevenue}
               />
 
             </div>
@@ -690,31 +677,26 @@ function QuickAction({
 /* ========================================================= */
 /* PAYMENT OVERVIEW */
 /* ========================================================= */
-
-function PaymentOverview({ orders, method }) {
-  const paymentOrders = orders.filter(
-    (order) => order.Payment_Details?.method === method
-  );
-
-  const amount = paymentOrders.reduce(
-    (total, order) =>
-      total + (Number(order.Total_Amount) || 0),
-    0
-  );
-
+function PaymentOverview({
+  method,
+  revenue,
+  orders,
+}) {
   return (
     <div className="bg-slate-50 rounded-lg p-4">
 
       <p className="text-sm text-slate-500">
-        {method === "COD" ? "Cash on Delivery" : method}
+        {method === "COD"
+          ? "Cash on Delivery"
+          : method}
       </p>
 
       <p className="mt-1 text-xl font-bold text-slate-900">
-        Rs. {amount.toLocaleString()}
+        Rs. {(revenue || 0).toLocaleString()}
       </p>
 
       <p className="mt-1 text-xs text-slate-500 font-medium">
-        {paymentOrders.length} orders
+        {orders || 0} orders
       </p>
 
     </div>

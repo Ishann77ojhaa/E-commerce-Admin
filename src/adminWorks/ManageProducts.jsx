@@ -170,11 +170,6 @@ export default function ManageProducts() {
 
   };
 
-//Edit 
-const handleEdit = async(product) =>{
-  console.log(product)
-}
-
 // LOADING
   if (
     status === STATUSES.LOADING &&
@@ -609,19 +604,19 @@ const handleEdit = async(product) =>{
                             </Link>
 
 
-                            <button
-                            onClick={()=>handleEdit(product)}
-                              title="Edit Product"
-                              className="
-                                p-2 rounded-lg
-                                text-slate-500
-                                hover:text-blue-600
-                                hover:bg-blue-50
-                                transition
-                              "
-                            >
-                              <PencilSquareIcon className="w-5 h-5" />
-                            </button>
+                            <Link
+  to={`/admin/products/${product._id}/edit`}
+  title="Edit Product"
+  className="
+    p-2 rounded-lg
+    text-slate-500
+    hover:text-blue-600
+    hover:bg-blue-50
+    transition
+  "
+>
+  <PencilSquareIcon className="w-5 h-5" />
+</Link>
 
 
                             <button

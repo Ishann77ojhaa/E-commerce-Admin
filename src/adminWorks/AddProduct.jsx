@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -15,6 +15,7 @@ import Loader from "../globals/loader/loader";
 export default function NewProduct() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const {status} = useSelector((state) => state.product);
 
   const [formData, setFormData] = useState({
     Product_name: "",
@@ -102,6 +103,8 @@ export default function NewProduct() {
       setIsSubmitting(false);
     }
   };
+
+ 
   if (status === STATUSES.LOADING) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
