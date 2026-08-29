@@ -14,6 +14,8 @@ import {
 
 import { STATUSES } from "../globals/misc/statuses";
 import Loader from "../globals/loader/loader";
+import { socket } from "../App";
+
 
 export default function SingleOrder() {
   const { id } = useParams();
@@ -89,9 +91,16 @@ export default function SingleOrder() {
 
   // Update status
   const handleStatusUpdate = async () => {
+     
     if (selectedStatus === order.Order_Status) {
       return;
     }
+   socket.emit("UpdateOrderStatus",{
+       status: selectedStatus,
+       orderId : id,
+       userId : order.user._id
+   })
+
     await dispatch(
       updateOrder(order._id,selectedStatus)
     );
