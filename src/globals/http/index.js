@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const API = axios.create({
-    baseURL : "http://localhost:2000/api",
+    baseURL : "https://iecomifybackend.onrender.com/api",
 
     headers :{
         'Content-Type' : 'application/json',
@@ -10,7 +10,7 @@ const API = axios.create({
 });
 
 const APIAuthenticated  = axios.create({
-    baseURL : "http://localhost:2000/api",
+    baseURL : "https://iecomifybackend.onrender.com/api",
 
     headers :{
         'Content-Type' : 'application/json',

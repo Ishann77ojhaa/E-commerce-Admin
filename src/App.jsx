@@ -2,7 +2,7 @@ import { RouterProvider } from "react-router-dom";
 import router from "./routes";
 import {io} from "socket.io-client";
 
-export const socket = io("http://localhost:2000",{
+export const socket = io("https://iecomifybackend.onrender.com",{
   auth:{
     token : localStorage.getItem("token")
   }
